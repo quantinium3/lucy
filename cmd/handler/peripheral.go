@@ -52,6 +52,14 @@ func (s *Peripheral) GetStats(c echo.Context) error {
 
 func (p *Peripheral) IncrementKeyStats(c echo.Context) error {
 	userId := c.Param("id")
+	statsReq := new(model.Peripheral)
+	if err := c.Bind(statsReq); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  "error",
+			"message": "Invalid body",
+		})
+	}
+
 	var stats model.Peripheral
 
 	err := p.db.First(&stats, "userId = ?", userId).Error
@@ -62,12 +70,17 @@ func (p *Peripheral) IncrementKeyStats(c echo.Context) error {
 		})
 	}
 
-    if stats.ID == uuid.Nil {
+	if stats.ID == uuid.Nil {
 		return c.JSON(http.StatusNotFound, map[string]any{
 			"status":  "error",
 			"message": "Stats not found",
 		})
-    }
+	}
 
-
+	stats.Keypress = statsReq.Keypress
+	return c.JSON(http.StatusOK, map[string]any{
+		"status":  "success",
+		"message": "successfully updated keypress",
+	})
 }
+
