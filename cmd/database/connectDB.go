@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/quantinium3/lucy/cmd/database/model"
 	"github.com/quantinium3/lucy/cmd/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -32,7 +33,7 @@ func ConnectDB() (*Database, error) {
 
 	db.Logger = logger.Default.LogMode(logger.Info)
 	log.Println("Running Migrations")
-	db.AutoMigrate()
+	db.AutoMigrate(&model.User{}, &model.Peripheral{})
 
 	return &Database{DB: db}, nil
 }
