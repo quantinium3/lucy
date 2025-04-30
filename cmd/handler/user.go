@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/quantinium3/lucy/cmd/database"
 	"github.com/quantinium3/lucy/cmd/database/model"
@@ -47,6 +48,41 @@ func (s *Service) CreateUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  "error",
 		"message": "User Create Successfully",
-		"data":    user,
+		"data": model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+		},
+	})
+}
+
+func (s *Service) GetUser(c echo.Context) error {
+	userId := c.Param("id")
+
+	var user model.User
+
+	err := s.db.Find(&user, "id = ?", userId).Error
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to query database",
+		})
+	}
+
+	if user.ID == uuid.Nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  "error",
+			"message": "No user found",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"status":  "success",
+		"message": "user fetched successfully",
+		"data": model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+		},
 	})
 }
