@@ -1,0 +1,51 @@
+package handler
+
+import (
+	"net/http"
+
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
+	"github.com/quantinium3/lucy/cmd/database"
+	"github.com/quantinium3/lucy/cmd/database/model"
+	"gorm.io/gorm"
+)
+
+type Peripheral struct {
+	db *gorm.DB
+}
+
+func PeripheralService(db *database.Database) *Peripheral {
+	return &Peripheral{db: db.DB}
+}
+
+func (s *Peripheral) GetStats(c echo.Context) error {
+	userId := c.Param("id")
+	var stats model.Peripheral
+
+	err := s.db.Find(&stats, "userId = ?", userId).Error
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to query database",
+		})
+	}
+
+	if stats.ID == uuid.Nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  "error",
+			"message": "Stats not found",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"status":  "success",
+		"message": "successfully fetched stats",
+		"data": model.Peripheral{
+			UserId:      stats.UserId,
+			Keypress:    stats.Keypress,
+			LeftClick:   stats.LeftClick,
+			RightClick:  stats.RightClick,
+			MouseTravel: stats.MouseTravel,
+		},
+	})
+}
