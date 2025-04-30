@@ -22,6 +22,7 @@ func UserService(db *database.Database) *User {
 
 func (s *User) CreateUser(c echo.Context) error {
 	user := new(model.User)
+	peripheral := new(model.Peripheral)
 
 	if err := c.Bind(user); err != nil {
 		return c.String(http.StatusBadRequest, "Bad request")
@@ -42,6 +43,17 @@ func (s *User) CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"status":  "error",
 			"message": "Failed to create user",
+		})
+	}
+
+	peripheral.Keypress = 0
+	peripheral.LeftClick = 0
+	peripheral.RightClick = 0
+	peripheral.MouseTravel = 0.0
+	if err = s.db.Create(&peripheral).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to create peripheral stats",
 		})
 	}
 
