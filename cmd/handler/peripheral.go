@@ -50,7 +50,7 @@ func (s *Peripheral) GetStats(c echo.Context) error {
 	})
 }
 
-func (p *Peripheral) IncrementKeyStats(c echo.Context) error {
+func (p *Peripheral) IncrementKeyboardStats(c echo.Context) error {
 	userId := c.Param("id")
 	statsReq := new(model.Peripheral)
 	if err := c.Bind(statsReq); err != nil {
@@ -78,9 +78,59 @@ func (p *Peripheral) IncrementKeyStats(c echo.Context) error {
 	}
 
 	stats.Keypress = statsReq.Keypress
+
+	if err = p.db.Save(&stats).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to save mouse stats",
+		})
+	}
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  "success",
 		"message": "successfully updated keypress",
 	})
 }
 
+func (p *Peripheral) IncrementMouseStats(c echo.Context) error {
+	userId := c.Param("id")
+	statsReq := new(model.Peripheral)
+	if err := c.Bind(statsReq); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"status":  "error",
+			"message": "Invalid body",
+		})
+	}
+
+	var stats model.Peripheral
+
+	err := p.db.First(&stats, "userId = ?", userId).Error
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to query database",
+		})
+	}
+
+	if stats.ID == uuid.Nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  "error",
+			"message": "Stats not found",
+		})
+	}
+
+	stats.LeftClick = statsReq.LeftClick
+	stats.RightClick = statsReq.RightClick
+	stats.MouseTravel = statsReq.MouseTravel
+
+	if err = p.db.Save(&stats).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to save mouse stats",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"status":  "success",
+		"message": "successfully updated keypress",
+	})
+}
