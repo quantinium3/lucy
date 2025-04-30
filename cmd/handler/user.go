@@ -45,7 +45,7 @@ func (s *Service) CreateUser(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, map[string]any{
+	return c.JSON(http.StatusCreated, map[string]any{
 		"status":  "error",
 		"message": "User Create Successfully",
 		"data": model.User{
@@ -79,6 +79,44 @@ func (s *Service) GetUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  "success",
 		"message": "user fetched successfully",
+		"data": model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+		},
+	})
+}
+
+func (s *Service) DeleteUser(c echo.Context) error {
+	userId := c.Param("id")
+	var user model.User
+
+	err := s.db.Find(&user, "id = ?", userId).Error
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to query database",
+		})
+	}
+
+	if user.ID == uuid.Nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  "error",
+			"message": "User not found",
+		})
+	}
+
+	err = s.db.Where("id = ?", userId).Delete(&user).Error
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "User not found",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"status":  "success",
+		"message": "User successfully deleted",
 		"data": model.User{
 			ID:       user.ID,
 			Username: user.Username,
