@@ -6,5 +6,7 @@ import (
 )
 
 func SetupUserRoutes(api *echo.Group, userService *handler.Service) {
-    api.GET("/user/create", userService.CreateUser) 
+	api.POST("/user/create", userService.CreateUser)
+	api.DELETE("/user/:id", userService.DeleteUser)
+	api.GET("/user/:id", userService.GetUser)
 }
