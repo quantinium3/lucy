@@ -12,15 +12,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Service struct {
+type User struct {
 	db *gorm.DB
 }
 
-func UserService(db *database.Database) *Service {
-	return &Service{db: db.DB}
+func UserService(db *database.Database) *User {
+	return &User{db: db.DB}
 }
 
-func (s *Service) CreateUser(c echo.Context) error {
+func (s *User) CreateUser(c echo.Context) error {
 	user := new(model.User)
 
 	if err := c.Bind(user); err != nil {
@@ -56,7 +56,7 @@ func (s *Service) CreateUser(c echo.Context) error {
 	})
 }
 
-func (s *Service) GetUser(c echo.Context) error {
+func (s *User) GetUser(c echo.Context) error {
 	userId := c.Param("id")
 
 	var user model.User
@@ -87,7 +87,7 @@ func (s *Service) GetUser(c echo.Context) error {
 	})
 }
 
-func (s *Service) DeleteUser(c echo.Context) error {
+func (s *User) DeleteUser(c echo.Context) error {
 	userId := c.Param("id")
 	var user model.User
 

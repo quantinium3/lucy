@@ -15,10 +15,12 @@ func main() {
 		log.Fatal("Failed to connect to database")
 	}
 
-    userService := handler.UserService(db)
+	userService := handler.UserService(db)
+	peripheralService := handler.PeripheralService(db)
 
 	e := echo.New()
-    api := e.Group("/api/v1")
-    routes.SetupUserRoutes(api, userService);
-    e.Logger.Fatal(e.Start(":1232"))
+	api := e.Group("/api/v1")
+	routes.SetupUserRoutes(api, userService)
+    routes.SetupPeripheralRoutes(api, peripheralService)
+	e.Logger.Fatal(e.Start(":1232"))
 }
