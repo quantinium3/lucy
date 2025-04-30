@@ -1,4 +1,4 @@
-package config
+package utils
 
 import (
 	"log"
@@ -9,7 +9,7 @@ import (
 
 func Config(key string) string {
 	if err := godotenv.Load(".env"); err != nil {
-		log.Println("Failed to load the environment variables")
+		log.Println("Failed to load environment variables")
 	}
 	return os.Getenv(key)
 }
