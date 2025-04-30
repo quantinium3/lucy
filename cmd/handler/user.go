@@ -61,7 +61,7 @@ func (s *User) GetUser(c echo.Context) error {
 
 	var user model.User
 
-	err := s.db.Find(&user, "id = ?", userId).Error
+	err := s.db.First(&user, "id = ?", userId).Error
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"status":  "error",
@@ -91,7 +91,7 @@ func (s *User) DeleteUser(c echo.Context) error {
 	userId := c.Param("id")
 	var user model.User
 
-	err := s.db.Find(&user, "id = ?", userId).Error
+	err := s.db.First(&user, "id = ?", userId).Error
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"status":  "error",

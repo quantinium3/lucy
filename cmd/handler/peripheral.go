@@ -22,7 +22,7 @@ func (s *Peripheral) GetStats(c echo.Context) error {
 	userId := c.Param("id")
 	var stats model.Peripheral
 
-	err := s.db.Find(&stats, "userId = ?", userId).Error
+	err := s.db.First(&stats, "userId = ?", userId).Error
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"status":  "error",
@@ -48,4 +48,26 @@ func (s *Peripheral) GetStats(c echo.Context) error {
 			MouseTravel: stats.MouseTravel,
 		},
 	})
+}
+
+func (p *Peripheral) IncrementKeyStats(c echo.Context) error {
+	userId := c.Param("id")
+	var stats model.Peripheral
+
+	err := p.db.First(&stats, "userId = ?", userId).Error
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to query database",
+		})
+	}
+
+    if stats.ID == uuid.Nil {
+		return c.JSON(http.StatusNotFound, map[string]any{
+			"status":  "error",
+			"message": "Stats not found",
+		})
+    }
+
+
 }
