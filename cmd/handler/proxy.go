@@ -57,7 +57,7 @@ func GetLastFMTracks(c echo.Context) error {
 }
 
 func GetCurrentProject(c echo.Context) error {
-	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI") + "/api/v1/users/current/stats/last_7_days", nil)
+	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI")+"/api/v1/users/current/stats/last_7_days", nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"status":  "error",
@@ -107,7 +107,7 @@ func GetCurrentProject(c echo.Context) error {
 }
 
 func GetOperatingSystems(c echo.Context) error {
-	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI") + "/api/v1/users/current/stats/last_7_days", nil)
+	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI")+"/api/v1/users/current/stats/last_7_days", nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"status":  "error",
@@ -157,7 +157,7 @@ func GetOperatingSystems(c echo.Context) error {
 }
 
 func GetMachine(c echo.Context) error {
-	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI") + "/api/v1/users/current/stats/last_7_days", nil)
+	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI")+"/api/v1/users/current/stats/last_7_days", nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"status":  "error",
@@ -207,7 +207,7 @@ func GetMachine(c echo.Context) error {
 }
 
 func GetLanguages(c echo.Context) error {
-	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI") + "/api/v1/users/current/stats/last_7_days", nil)
+	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI")+"/api/v1/users/current/stats/last_7_days", nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"status":  "error",
@@ -257,7 +257,7 @@ func GetLanguages(c echo.Context) error {
 }
 
 func GetEditor(c echo.Context) error {
-	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI") + "/api/v1/users/current/stats/last_7_days", nil)
+	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI")+"/api/v1/users/current/stats/last_7_days", nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"status":  "error",
@@ -303,5 +303,59 @@ func GetEditor(c echo.Context) error {
 		"status":  "success",
 		"message": "Successfully fetched recently played songs",
 		"data":    result.Data.Editors,
+	})
+}
+
+func GetTime(c echo.Context) error {
+	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI")+"/api/v1/users/current/stats/last_7_days", nil)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to create request",
+		})
+	}
+
+	req.Header.Set("Authorization", "Basic "+utils.Config("WAKATIME_APIKEY"))
+	req.Header.Set("Accept", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to fetch current Project",
+		})
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Error reading response",
+		})
+	}
+
+	var result struct {
+		Data struct {
+			TotalTime    string `json:"human_readable_total"`
+			DailyAverage string `json:"human_readable_daily_average"`
+		} `json:"data"`
+	}
+
+	if err = json.Unmarshal(body, &result); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to unmarshal data",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"status":  "success",
+		"message": "Successfully fetched recently played songs",
+		"data": map[string]string{
+			"totalTime":    result.Data.TotalTime,
+			"dailyAverage": result.Data.DailyAverage,
+		},
 	})
 }
