@@ -16,4 +16,5 @@ func SetupProxyRoutes(api *echo.Group) {
     api.GET("/wakatime/time", handler.GetTime)
 
     api.GET("/todoist/tasks", handler.GetTasks)
+    api.GET("/githubgraph", handler.GetGithubGraph)
 }
