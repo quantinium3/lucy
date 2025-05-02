@@ -8,7 +8,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/quantinium3/lucy/cmd/utils"
-	"golang.org/x/text/width"
 )
 
 func GetLastFMTracks(c echo.Context) error {
@@ -415,4 +414,8 @@ func GetTasks(c echo.Context) error {
 		"message": "Successfully fetched recently played songs",
 		"data":    result.Results,
 	})
+}
+
+func GetGithubGraph(c echo.Context) error {
+	return c.JSON(http.StatusOK, fmt.Sprintf(`<img src="https://ghchart.rshah.org/%s" alt="Quantinium Github chart" />`, utils.Config("GITHUB_USERNAME")))
 }
