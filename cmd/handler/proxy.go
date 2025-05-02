@@ -8,6 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/quantinium3/lucy/cmd/utils"
+	"golang.org/x/text/width"
 )
 
 func GetLastFMTracks(c echo.Context) error {
@@ -357,5 +358,61 @@ func GetTime(c echo.Context) error {
 			"totalTime":    result.Data.TotalTime,
 			"dailyAverage": result.Data.DailyAverage,
 		},
+	})
+}
+
+func GetTasks(c echo.Context) error {
+	req, err := http.NewRequest("GET", utils.Config("TODOIST_URI")+"/tasks", nil)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to create request",
+		})
+	}
+
+	req.Header.Set("Authorization", "Bearer "+utils.Config("TODOIST_APIKEY"))
+	req.Header.Set("Accept", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to fetch current Project",
+		})
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Error reading response",
+		})
+	}
+
+	type TodoistData struct {
+		Deadline string `json:"deadline"`
+		Content  string `json:"content"`
+		Priority int32  `json:"priority"`
+	}
+
+	type TodoistResponse struct {
+		Results []TodoistData `json:"results"`
+	}
+
+	var result TodoistResponse
+
+	if err = json.Unmarshal(body, &result); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to unmarshal data",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"status":  "success",
+		"message": "Successfully fetched recently played songs",
+		"data":    result.Results,
 	})
 }
