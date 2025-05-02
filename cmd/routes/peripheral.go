@@ -6,5 +6,7 @@ import (
 )
 
 func SetupPeripheralRoutes(api *echo.Group, peripheralHandler *handler.Peripheral) {
-    api.GET("/stats/:id", peripheralHandler)
+    api.GET("/stats/:id", peripheralHandler.GetStats)
+    api.POST("/stats/mouse/:id", peripheralHandler.IncrementMouseStats)
+    api.POST("/stats/keyboard/:id", peripheralHandler.IncrementKeyboardStats)
 }
