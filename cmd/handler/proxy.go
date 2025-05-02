@@ -57,7 +57,7 @@ func GetLastFMTracks(c echo.Context) error {
 }
 
 func GetCurrentProject(c echo.Context) error {
-	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI"), nil)
+	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI") + "/api/v1/users/current/stats/last_7_days", nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"status":  "error",
@@ -103,5 +103,105 @@ func GetCurrentProject(c echo.Context) error {
 		"status":  "success",
 		"message": "Successfully fetched recently played songs",
 		"data":    result.Data.Projects[0],
+	})
+}
+
+func GetOperatingSystems(c echo.Context) error {
+	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI") + "/api/v1/users/current/stats/last_7_days", nil)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to create request",
+		})
+	}
+
+	req.Header.Set("Authorization", "Basic "+utils.Config("WAKATIME_APIKEY"))
+	req.Header.Set("Accept", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to fetch current Project",
+		})
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Error reading response",
+		})
+	}
+
+	var result struct {
+		Data struct {
+			OperatingSystems []any `json:"operating_systems"`
+		} `json:"data"`
+	}
+
+	if err = json.Unmarshal(body, &result); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to unmarshal data",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"status":  "success",
+		"message": "Successfully fetched recently played songs",
+		"data":    result.Data.OperatingSystems,
+	})
+}
+
+func GetMachine(c echo.Context) error {
+	req, err := http.NewRequest("GET", utils.Config("WAKATIME_URI") + "/api/v1/users/current/stats/last_7_days", nil)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to create request",
+		})
+	}
+
+	req.Header.Set("Authorization", "Basic "+utils.Config("WAKATIME_APIKEY"))
+	req.Header.Set("Accept", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to fetch current Project",
+		})
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Error reading response",
+		})
+	}
+
+	var result struct {
+		Data struct {
+			Machines []any `json:"machines"`
+		} `json:"data"`
+	}
+
+	if err = json.Unmarshal(body, &result); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"status":  "error",
+			"message": "Failed to unmarshal data",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"status":  "success",
+		"message": "Successfully fetched recently played songs",
+		"data":    result.Data.Machines,
 	})
 }

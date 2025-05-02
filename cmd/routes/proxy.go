@@ -8,4 +8,6 @@ import (
 func SetupProxyRoutes(api *echo.Group) {
     api.GET("/lastfm", handler.GetLastFMTracks)
     api.GET("/wakatime/currentproject", handler.GetCurrentProject)
+    api.GET("/wakatime/os", handler.GetOperatingSystems)
+    api.GET("/wakatime/machine", handler.GetMachine)
 }
