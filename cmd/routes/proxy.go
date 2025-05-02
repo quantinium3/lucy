@@ -11,4 +11,5 @@ func SetupProxyRoutes(api *echo.Group) {
     api.GET("/wakatime/os", handler.GetOperatingSystems)
     api.GET("/wakatime/machine", handler.GetMachine)
     api.GET("/wakatime/languages", handler.GetLanguages)
+    api.GET("/wakatime/editor", handler.GetEditor)
 }
